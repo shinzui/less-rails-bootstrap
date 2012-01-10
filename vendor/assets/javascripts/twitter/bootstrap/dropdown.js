@@ -35,11 +35,17 @@
     constructor: Dropdown
 
   , toggle: function ( e ) {
-      var li = $(this).parent('li')
-        , isActive = li.hasClass('open')
+      var $this = $(this)
+        , selector = $this.attr('data-target') || $this.attr('href')
+        , $parent = $(selector)
+        , isActive
+
+      $parent.length || ($parent = $this.parent())
+      isActive = $parent.hasClass('open')
 
       clearMenus()
-      !isActive && li.toggleClass('open')
+
+      !isActive && $parent.toggleClass('open')
 
       return false
     }
@@ -47,7 +53,7 @@
   }
 
   function clearMenus() {
-    $(toggle).parent('li').removeClass('open')
+    $(toggle).parent().removeClass('open')
   }
 
 
@@ -63,13 +69,15 @@
     })
   }
 
+  $.fn.dropdown.Constructor = Dropdown
+
 
   /* APPLY TO STANDARD DROPDOWN ELEMENTS
    * =================================== */
 
   $(function () {
-    $('html').bind('click.dropdown.data-api', clearMenus)
-    $('body').delegate(toggle, 'click.dropdown.data-api', Dropdown.prototype.toggle)
+    $(window).on('click.dropdown.data-api', clearMenus)
+    $('body').on('click.dropdown.data-api', toggle, Dropdown.prototype.toggle)
   })
 
-}( window.jQuery || window.ender )
+}( window.jQuery )

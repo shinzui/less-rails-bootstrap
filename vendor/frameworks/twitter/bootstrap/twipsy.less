@@ -3,19 +3,21 @@
 
 .twipsy {
   position: absolute;
-  z-index: 1000;
+  z-index: @zindexTwipsy;
   display: block;
   visibility: visible;
   padding: 5px;
   font-size: 11px;
   .opacity(0);
-  &.in {
-    .opacity(80);
-  }
-  &.above .twipsy-arrow   { #popoverArrow > .above(); }
-  &.left .twipsy-arrow    { #popoverArrow > .left(); }
-  &.below .twipsy-arrow   { #popoverArrow > .below(); }
-  &.right .twipsy-arrow   { #popoverArrow > .right(); }
+  &.in     { .opacity(80); }
+  &.top    { margin-top:  -2px; }
+  &.right  { margin-left:  2px; }
+  &.bottom { margin-top:   2px; }
+  &.left   { margin-left: -2px; }
+  &.top .twipsy-arrow    { #popoverArrow > .top(); }
+  &.left .twipsy-arrow   { #popoverArrow > .left(); }
+  &.bottom .twipsy-arrow { #popoverArrow > .bottom(); }
+  &.right .twipsy-arrow  { #popoverArrow > .right(); }
 }
 .twipsy-inner {
   max-width: 200px;
