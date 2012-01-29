@@ -28,7 +28,6 @@ legend {
   color: @grayDark;
   border: 0;
   border-bottom: 1px solid #eee;
-  -webkit-margin-collapse: separate;
 }
 
 // Set font for forms
@@ -68,22 +67,30 @@ select,
   height: auto;
 }
 
+// Inputs within a label
+label input,
+label textarea,
+label select {
+  display: block;
+}
+
 // Mini reset for unique input types
-input[type=image],
-input[type=checkbox],
-input[type=radio] {
+input[type="image"],
+input[type="checkbox"],
+input[type="radio"] {
   width: auto;
   height: auto;
   padding: 0;
   margin: 3px 0;
   *margin-top: 0; /* IE7 */
   line-height: normal;
-  border: none;
+  border: 0;
   cursor: pointer;
+  border-radius: 0 e("\0/"); // Nuke border-radius for IE9 only
 }
 
 // Reset the file input to browser defaults
-input[type=file] {
+input[type="file"] {
   padding: initial;
   line-height: initial;
   border: initial;
@@ -93,16 +100,16 @@ input[type=file] {
 }
 
 // Help out input buttons
-input[type=button],
-input[type=reset],
-input[type=submit] {
+input[type="button"],
+input[type="reset"],
+input[type="submit"] {
   width: auto;
   height: auto;
 }
 
 // Set the height of select and file controls to match text inputs
 select,
-input[type=file] {
+input[type="file"] {
   height: 28px; /* In IE7, the height of the select element cannot be changed by height, only font-size */
   *margin-top: 4px; /* For IE7, add top margin to align select with labels */
   line-height: 28px;
@@ -111,7 +118,6 @@ input[type=file] {
 // Chrome on Linux and Mobile Safari need background-color
 select {
   width: 220px; // default input width + 10px of padding that doesn't get applied
-  vertical-align: baseline;
   background-color: @white;
 }
 
@@ -122,12 +128,18 @@ select[size] {
 }
 
 // Remove shadow from image inputs
-input[type=image] {
+input[type="image"] {
   .box-shadow(none);
 }
 
+// Make textarea height behave
 textarea {
   height: auto;
+}
+
+// Hidden inputs
+input[type="hidden"] {
+  display: none;
 }
 
 
@@ -140,8 +152,8 @@ textarea {
 .checkbox {
   padding-left: 18px;
 }
-.radio input[type=radio],
-.checkbox input[type=checkbox] {
+.radio input[type="radio"],
+.checkbox input[type="checkbox"] {
   float: left;
   margin-left: -18px;
 }
@@ -149,7 +161,7 @@ textarea {
 // Move the options list down to align with labels
 .controls > .radio:first-child,
 .controls > .checkbox:first-child {
-  padding-top: 6px; // has to be padding because margin collaspes
+  padding-top: 5px; // has to be padding because margin collaspes
 }
 
 // Radios and checkboxes on same line
@@ -157,10 +169,16 @@ textarea {
 .checkbox.inline {
   display: inline-block;
   margin-bottom: 0;
+  vertical-align: middle;
 }
 .radio.inline + .radio.inline,
 .checkbox.inline + .checkbox.inline {
   margin-left: 10px; // space out consecutive inline controls
+}
+// But don't forget to remove their padding on first-child
+.controls > .radio.inline:first-child,
+.controls > .checkbox.inline:first-child {
+  padding-top: 5px; // has to be padding because margin collaspes
 }
 
 
@@ -180,12 +198,13 @@ textarea:focus {
   @shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6);
   .box-shadow(@shadow);
   outline: 0;
+  outline: thin dotted \9; /* IE6-8 */
 }
-input[type=file]:focus,
-input[type=checkbox]:focus,
+input[type="file"]:focus,
+input[type="checkbox"]:focus,
 select:focus {
   .box-shadow(none); // override for file inputs
-  outline: 1px dotted #666; // Selet elements don't get box-shadow styles, so instead we do outline
+  .tab-focus();
 }
 
 
@@ -363,9 +382,10 @@ select:focus:required:invalid {
 }
 
 .help-inline {
-  *position: relative; /* IE6-7 */
-  *top: -5px; /* IE6-7 */
-  display: inline;
+  display: inline-block;
+  .ie7-inline-block();
+  margin-bottom: 9px;
+  vertical-align: middle;
   padding-left: 5px;
 }
 
@@ -382,6 +402,10 @@ select:focus:required:invalid {
   input,
   .uneditable-input {
     .border-radius(0 3px 3px 0);
+    &:focus {
+      position: relative;
+      z-index: 2;
+    }
   }
   .uneditable-input {
     border-left-color: #ccc;
@@ -427,6 +451,15 @@ select:focus:required:invalid {
     margin-left: -1px;
     .border-radius(0 3px 3px 0);
   }
+  input:first-child {
+    // In IE7, having a hasLayout container (from clearfix's zoom:1) can make the first input
+    // inherit the sum of its ancestors' margins.
+    *margin-left: -160px;
+
+    &+.add-on {
+      *margin-left: -21px;
+    }
+  }
 }
 
 
@@ -455,6 +488,7 @@ select:focus:required:invalid {
   input,
   textarea,
   select,
+  .help-inline,
   .uneditable-input {
     display: inline-block;
     margin-bottom: 0;
@@ -474,9 +508,15 @@ select:focus:required:invalid {
 // --------------------------
 
 .form-horizontal {
+  // Legend collapses margin, so we're relegated to padding
+  legend + .control-group {
+    margin-top: @baseLineHeight;
+    -webkit-margin-top-collapse: separate;
+  }
   // Increase spacing between groups
   .control-group {
     margin-bottom: @baseLineHeight;
+    .clearfix();
   }
   // Float the labels left
   .control-group > label {
